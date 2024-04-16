@@ -6,10 +6,34 @@ import 'package:record/record.dart';
 
 import 'platform/audio_recorder_platform.dart';
 
-class Recorder extends StatefulWidget {
-  final void Function(String path) onStop;
+Future<void> _recordStream(
+    AudioRecorder recorder,
+    RecordConfig config,
+    void Function(Uint8List) onDataFunction,
+    void Function(Uint8List) onDoneFunction) async {
+  Uint8List b = Uint8List(0);
+  final stream = await recorder.startStream(config);
 
-  const Recorder({super.key, required this.onStop});
+  stream.listen(
+    (data) {
+      onDataFunction(data);
+      b.addAll(data);
+    },
+    onDone: () => onDoneFunction(b),
+  );
+}
+
+class Recorder extends StatefulWidget {
+  // final void Function(String path) onStop;
+  final void Function(Uint8List) onStopStream;
+  final void Function(Uint8List) onReadStream;
+  final void Function() onStart;
+
+  const Recorder(
+      {super.key,
+      required this.onStart,
+      required this.onStopStream,
+      required this.onReadStream});
 
   @override
   State<Recorder> createState() => _RecorderState();
@@ -44,7 +68,7 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
   Future<void> _start() async {
     try {
       if (await _audioRecorder.hasPermission()) {
-        const encoder = AudioEncoder.wav;
+        const encoder = AudioEncoder.pcm16bits;
 
         if (!await _isEncoderSupported(encoder)) {
           return;
@@ -57,10 +81,11 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
 
         _recordDuration = 0;
         // Record to file
-        await recordFile(_audioRecorder, config);
+        // await recordFile(_audioRecorder, config);
 
         // Record to stream
-        // await recordStream(_audioRecorder, config);
+        await _recordStream(
+            _audioRecorder, config, widget.onReadStream, widget.onStopStream);
 
         _startTimer();
       }
@@ -72,13 +97,14 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
   }
 
   Future<void> _stop() async {
-    final path = await _audioRecorder.stop();
+    // final path = await _audioRecorder.stop();
+    await _audioRecorder.stop();
 
-    if (path != null) {
-      widget.onStop(path);
+    // if (path != null) {
+    // widget.onStop(path);
 
-      // downloadWebData(path);
-    }
+    // downloadWebData(path);
+    // }
   }
 
   // Future<void> _pause() => _audioRecorder.pause();

@@ -10,13 +10,20 @@ mixin AudioRecorderMixin {
     return recorder.start(config, path: '');
   }
 
-  Future<void> recordStream(AudioRecorder recorder, RecordConfig config) async {
+  Future<void> recordStream(
+      AudioRecorder recorder,
+      RecordConfig config,
+      void Function(Uint8List) onDataFunction,
+      void Function(String) onDoneFunction) async {
     final b = <Uint8List>[];
     final stream = await recorder.startStream(config);
 
     stream.listen(
-      (data) => b.add(data),
-      onDone: () => downloadWebData(html.Url.createObjectUrl(html.Blob(b))),
+      (data) {
+        onDataFunction(data);
+        b.add(data);
+      },
+      onDone: () => onDoneFunction(html.Url.createObjectUrl(html.Blob(b))),
     );
   }
 
