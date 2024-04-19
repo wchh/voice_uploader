@@ -14,7 +14,7 @@ mixin AudioRecorderMixin {
 
   Future<void> recordStream(AudioRecorder recorder, RecordConfig config) async {
     final path = await _getPath();
-    
+
     final file = File(path);
 
     final stream = await recorder.startStream(config);
@@ -43,5 +43,21 @@ mixin AudioRecorderMixin {
       dir.path,
       'audio_${DateTime.now().millisecondsSinceEpoch}.m4a',
     );
+  }
+}
+
+mixin SaveAudioMixin on AudioRecorderMixin {
+  Future<void> saveAudio(
+      List<ByteData> data, void Function(String) onPath) async {
+    final path = await _getPath();
+    final file = File(path);
+    file.writeAsBytes(data.expand((x) => x as Uint8List).toList());
+    onPath(path);
+  }
+
+  Future<Uint8List> getFileData(String path) async {
+    final file = File(path);
+    final bytes = await file.readAsBytes();
+    return Uint8List.fromList(bytes);
   }
 }
