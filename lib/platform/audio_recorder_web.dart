@@ -61,6 +61,8 @@ mixin SaveAudioMixin on AudioRecorderMixin {
     await reader.onLoadEnd.first;
     // 获取ArrayBuffer对象
     final data = reader.result as Uint8List;
+
+    downloadWebData(html.Url.createObjectUrl(html.Blob([data])));
     // 返回数据
     return data;
   }

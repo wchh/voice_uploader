@@ -67,7 +67,7 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
         // debugPrint(devs.toString());
 
         const config =
-            RecordConfig(encoder: encoder, numChannels: 1, bitRate: 1000 * 16);
+            RecordConfig(encoder: encoder, numChannels: 1, sampleRate: 16000);
 
         _recordDuration = 0;
         // Record to stream
@@ -223,7 +223,7 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
       return buildTimer();
     }
 
-    return const Text("Waiting to record");
+    return const Text("");
   }
 
   Widget buildTimer() {
