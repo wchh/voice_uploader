@@ -20,17 +20,18 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+const registerSuccess = "registerSuccess";
+const checkinSuccess = "checkinSuccess";
+const registerWithDifferentAddress = "registerWithDifferentAddress";
+const serverError = "serverError";
+const postError = "postError";
+
 class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
   bool showPlayer = false;
   String? audioPath;
   final addressController = TextEditingController();
   final String url = 'http://localhost/upload';
   String uploadResult = '';
-  // Timer? _timer;
-  // final _buffer = <ByteData>[];
-  // static const readLength = 1280;
-  // RecorderState _rstate = RecorderState.stop;
-  // int _readed = 0;
 
   @override
   void initState() {
@@ -41,8 +42,6 @@ class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
   @override
   void dispose() {
     super.dispose();
-    // _timer?.cancel();
-    // _buffer.clear();
   }
 
   Future<String> _uploadAudio(
@@ -53,6 +52,8 @@ class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
 
     // 创建一个HTTP客户端
     final client = http.Client();
+
+    String result = '';
 
     // 发送数据
     try {
@@ -66,15 +67,18 @@ class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
 
       if (response.statusCode != 200) {
         debugPrint('上传失败：${response.statusCode}');
-        return 'upload failed with status code ${response.statusCode}';
+        result = '${response.statusCode}: ${response.body}';
+      } else {
+        debugPrint('上传成功：${response.body}');
+        result = response.body;
       }
     } catch (e) {
       debugPrint('上传失败：$e');
-      return 'upload failed with $e';
+      result = e.toString();
     } finally {
       client.close();
     }
-    return 'upload success';
+    return result;
   }
 
   @override
@@ -122,26 +126,14 @@ class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
                   ),
                   Recorder(
                     onStart: () {
-                      // _startTimer();
-                      // _rstate = RecorderState.start;
                       setState(() {
                         showPlayer = false;
                       });
                     },
-                    onReadStream: (data) {
-                      // _buffer.add(ByteData.sublistView(data));
-                    },
+                    onReadStream: (data) {},
                     onStop: (path) {
-                      // _rstate = RecorderState.stop;
                       if (kDebugMode) print('Recorded file path: $path');
                       if (path == null) {
-                        // stream
-                        // saveAudio(_buffer, (spath) {
-                        //   audioPath = spath;
-                        //   setState(() {
-                        //     showPlayer = false;
-                        //   });
-                        // });
                       } else {
                         // file
                         audioPath = path;

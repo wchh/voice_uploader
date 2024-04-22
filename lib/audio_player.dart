@@ -78,17 +78,17 @@ class AudioPlayerState extends State<AudioPlayer> {
               children: <Widget>[
                 _buildControl(),
                 _buildSlider(540),
-                IconButton(
-                  icon: const Icon(Icons.delete,
-                      color: Color(0xFF73748D), size: _deleteBtnSize),
-                  onPressed: () {
-                    if (_audioPlayer.state == ap.PlayerState.playing) {
-                      stop().then((value) => widget.onDelete());
-                    } else {
-                      widget.onDelete();
-                    }
-                  },
-                ),
+                // IconButton(
+                //   icon: const Icon(Icons.delete,
+                //       color: Color(0xFF73748D), size: _deleteBtnSize),
+                //   onPressed: () {
+                //     if (_audioPlayer.state == ap.PlayerState.playing) {
+                //       stop().then((value) => widget.onDelete());
+                //     } else {
+                //       widget.onDelete();
+                //     }
+                //   },
+                // ),
               ],
             ),
             // Text('${_duration ?? 0.0}'),
