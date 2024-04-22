@@ -8,10 +8,14 @@ import 'package:http/http.dart' as http;
 import './audio_player.dart';
 import './audio_recorder.dart';
 import './platform/audio_recorder_platform.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 enum RecorderState { start, continuing, stop }
 
-void main() => runApp(const MyApp());
+void main() async {
+  await dotenv.load(fileName: ".env");
+  runApp(const MyApp());
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -30,13 +34,14 @@ class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
   bool showPlayer = false;
   String? audioPath;
   final addressController = TextEditingController();
-  final String url = 'http://localhost/upload';
   String uploadResult = '';
+  late String? _apiUrl = '';
 
   @override
   void initState() {
-    showPlayer = false;
     super.initState();
+    showPlayer = false;
+    _apiUrl = dotenv.env['API_URL'];
   }
 
   @override
@@ -44,11 +49,11 @@ class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
     super.dispose();
   }
 
-  Future<String> _uploadAudio(
-      String url, String address, Uint8List data) async {
+  Future<String> _uploadAudio(String address, Uint8List data) async {
     debugPrint('上传音频数据, ${data.length}');
     // 创建一个URI，并添加address参数
-    final uri = Uri.parse(url).replace(queryParameters: {'address': address});
+    final uri =
+        Uri.parse(_apiUrl!).replace(queryParameters: {'address': address});
 
     // 创建一个HTTP客户端
     final client = http.Client();
@@ -161,7 +166,7 @@ class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
                               onPressed: () async {
                                 final buffer = await getFileData(audioPath!);
                                 final result = await _uploadAudio(
-                                    url, addressController.text, buffer);
+                                    addressController.text, buffer);
                                 setState(() {
                                   uploadResult = result;
                                 });
