@@ -36,12 +36,17 @@ class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
   final addressController = TextEditingController();
   String uploadResult = '';
   late String? _apiUrl = '';
+  late String? _text = '0123456789';
 
   @override
   void initState() {
     super.initState();
     showPlayer = false;
     _apiUrl = dotenv.env['API_URL'];
+    final text = dotenv.env['TEXT'];
+    if (text != null) {
+      _text = text;
+    }
   }
 
   @override
@@ -122,8 +127,9 @@ class _MyAppState extends State<MyApp> with AudioRecorderMixin, SaveAudioMixin {
                       const Text('请朗读红色文字并录音: ',
                           style: TextStyle(fontSize: 16)),
                       const SizedBox(height: 10),
-                      const Text('芝麻开门',
-                          style: TextStyle(color: Colors.red, fontSize: 24)),
+                      Text(_text!,
+                          style:
+                              const TextStyle(color: Colors.red, fontSize: 24)),
                     ],
                   ),
                   const SizedBox(
