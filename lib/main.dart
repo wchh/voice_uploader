@@ -48,18 +48,19 @@ class MyHome extends StatefulWidget {
   State<MyHome> createState() => _MyHomeState();
 }
 
-const registerSuccess = "registerSuccess";
-const checkinSuccess = "checkinSuccess";
-const registerWithDifferentAddress = "registerWithDifferentAddress";
-const serverError = "serverError";
-const postError = "postError";
+class UploadResult {
+  final String result;
+  final int code;
+
+  UploadResult(this.result, this.code);
+}
 
 class _MyHomeState extends State<MyHome>
     with AudioRecorderMixin, SaveAudioMixin {
   bool showPlayer = false;
   String? audioPath;
   final addressController = TextEditingController();
-  String uploadResult = '';
+  UploadResult _uploadResult = UploadResult('', 0);
   late String? _apiUrl = '';
   String _language = 'en';
 
@@ -76,7 +77,7 @@ class _MyHomeState extends State<MyHome>
     super.dispose();
   }
 
-  Future<String> _uploadAudio(String address, Uint8List data) async {
+  Future<UploadResult> _uploadAudio(String address, Uint8List data) async {
     debugPrint('上传音频数据, ${data.length}');
     // 创建一个URI，并添加address参数
     final uri =
@@ -86,6 +87,7 @@ class _MyHomeState extends State<MyHome>
     final client = http.Client();
 
     String result = '';
+    int code = 0;
 
     // 发送数据
     try {
@@ -104,13 +106,14 @@ class _MyHomeState extends State<MyHome>
         debugPrint('上传成功：${response.body}');
         result = response.body;
       }
+      code = response.statusCode;
     } catch (e) {
       debugPrint('上传失败：$e');
       result = e.toString();
     } finally {
       client.close();
     }
-    return result;
+    return UploadResult(result, code);
   }
 
   @override
@@ -266,7 +269,7 @@ class _MyHomeState extends State<MyHome>
                               final result = await _uploadAudio(
                                   addressController.text, buffer);
                               setState(() {
-                                uploadResult = result;
+                                _uploadResult = result;
                               });
                             },
                             child: Text(
@@ -275,7 +278,11 @@ class _MyHomeState extends State<MyHome>
                           const SizedBox(
                             height: 20,
                           ),
-                          Text(uploadResult),
+                          Text(_uploadResult.result,
+                              style: TextStyle(
+                                  color: _uploadResult.code == 200
+                                      ? Colors.green
+                                      : Colors.red)),
                         ],
                       )
                     : Container(),
