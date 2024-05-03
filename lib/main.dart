@@ -278,7 +278,8 @@ class _MyHomeState extends State<MyHome>
                           const SizedBox(
                             height: 20,
                           ),
-                          Text(_uploadResult.result,
+                          Text(
+                              "${_uploadResult.code == 200 ? AppLocalizations.of(context)!.uploadResultOk : AppLocalizations.of(context)!.uploadResultErr}: ${_uploadResult.result}",
                               style: TextStyle(
                                   color: _uploadResult.code == 200
                                       ? Colors.green

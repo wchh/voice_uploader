@@ -4,5 +4,7 @@
   "readRedTextAndRecord": "Please read the red text and record",
   "identifySound": "Identify Sound",
   "selectLanguage": "Select Language",
-  "redText": "Give me some Bityuan"
+  "redText": "Give me some Bityuan",
+  "uploadResultOk": "Voiceprint authentication successful",
+  "uploadResultErr": "Voiceprint authentication failed"
 }

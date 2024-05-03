@@ -4,5 +4,7 @@
   "readRedTextAndRecord": "请朗读红色文字并录音",
   "identifySound": "识别声音",
   "selectLanguage": "选择语言",
-  "redText": "给我一些比特元"
+  "redText": "给我一些比特元",
+  "uploadResultOk": "声纹认证成功",
+  "uploadResultErr": "声纹认证失败"
 }
