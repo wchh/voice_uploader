@@ -233,8 +233,6 @@ class _MyHomeState extends State<MyHome>
                                 color: Colors.red, fontSize: 24)),
                       ],
                     ),
-                    // ),
-                    // ),
                     const SizedBox(
                       height: 32,
                     ),
