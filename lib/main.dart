@@ -117,11 +117,15 @@ class _MyHomeState extends State<MyHome>
     return UploadResult(result, code);
   }
 
-  String _getUploadResultText() {
+  String _getUploadResultText(context) {
     if (!showUploadResult) {
       return '';
     }
-    return "${showUploadResult && _uploadResult.code == 200 ? AppLocalizations.of(context)!.uploadResultOk : AppLocalizations.of(context)!.uploadResultErr}: ${_uploadResult.result}";
+    String result = AppLocalizations.of(context)!.uploadResultOk;
+    if (_uploadResult.code != 200) {
+      result = AppLocalizations.of(context)!.uploadResultErr;
+    }
+    return "$result: ${_uploadResult.result}";
   }
 
   @override
@@ -288,7 +292,7 @@ class _MyHomeState extends State<MyHome>
                           const SizedBox(
                             height: 20,
                           ),
-                          Text(_getUploadResultText(),
+                          Text(_getUploadResultText(context),
                               style: TextStyle(
                                   color: _uploadResult.code == 200
                                       ? Colors.green
