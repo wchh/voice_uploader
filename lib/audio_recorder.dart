@@ -74,6 +74,7 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
         recordFile(_audioRecorder, config);
         // await recordStream(_audioRecorder, config);
         // await _recordStream(config);
+        widget.onStart();
 
         // _startTimer();
       }

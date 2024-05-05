@@ -58,6 +58,7 @@ class UploadResult {
 class _MyHomeState extends State<MyHome>
     with AudioRecorderMixin, SaveAudioMixin {
   bool showPlayer = false;
+  bool showUploadResult = false;
   String? audioPath;
   final addressController = TextEditingController();
   UploadResult _uploadResult = UploadResult('', 0);
@@ -114,6 +115,13 @@ class _MyHomeState extends State<MyHome>
       client.close();
     }
     return UploadResult(result, code);
+  }
+
+  String _getUploadResultText() {
+    if (!showUploadResult) {
+      return '';
+    }
+    return "${showUploadResult && _uploadResult.code == 200 ? AppLocalizations.of(context)!.uploadResultOk : AppLocalizations.of(context)!.uploadResultErr}: ${_uploadResult.result}";
   }
 
   @override
@@ -235,6 +243,7 @@ class _MyHomeState extends State<MyHome>
                   onStart: () {
                     setState(() {
                       showPlayer = false;
+                      showUploadResult = false;
                     });
                   },
                   onReadStream: (data) {},
@@ -269,6 +278,7 @@ class _MyHomeState extends State<MyHome>
                               final result = await _uploadAudio(
                                   addressController.text, buffer);
                               setState(() {
+                                showUploadResult = true;
                                 _uploadResult = result;
                               });
                             },
@@ -278,8 +288,7 @@ class _MyHomeState extends State<MyHome>
                           const SizedBox(
                             height: 20,
                           ),
-                          Text(
-                              "${_uploadResult.code == 200 ? AppLocalizations.of(context)!.uploadResultOk : AppLocalizations.of(context)!.uploadResultErr}: ${_uploadResult.result}",
+                          Text(_getUploadResultText(),
                               style: TextStyle(
                                   color: _uploadResult.code == 200
                                       ? Colors.green
