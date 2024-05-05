@@ -132,177 +132,175 @@ class _MyHomeState extends State<MyHome>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Container(
-          color: Colors.grey[200],
-          padding: const EdgeInsets.all(20),
-          width: 800,
-          child: SizedBox(
-            height: 600,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+        child: Localizations.override(
+          context: context,
+          locale: Locale(_language),
+          child: Builder(builder: (context) {
+            return Container(
+              color: Colors.grey[200],
+              padding: const EdgeInsets.all(20),
+              width: 800,
+              child: SizedBox(
+                height: 600,
+                child: Column(
                   children: [
-                    MenuAnchor(
-                      builder: (context, controller, child) {
-                        return FilledButton.tonal(
-                          onPressed: () {
-                            if (controller.isOpen) {
-                              controller.close();
-                            } else {
-                              controller.open();
-                            }
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        MenuAnchor(
+                          builder: (context, controller, child) {
+                            return FilledButton.tonal(
+                              onPressed: () {
+                                if (controller.isOpen) {
+                                  controller.close();
+                                } else {
+                                  controller.open();
+                                }
+                              },
+                              child: Text(
+                                  AppLocalizations.of(context)!.selectLanguage),
+                            );
                           },
-                          child: Text(
-                              AppLocalizations.of(context)!.selectLanguage),
-                        );
-                      },
-                      menuChildren: [
-                        MenuItemButton(
-                          child: Row(
-                            children: [
-                              Flag.fromCode(
-                                FlagsCode.US,
-                                height: 20,
-                                width: 20,
+                          menuChildren: [
+                            MenuItemButton(
+                              child: Row(
+                                children: [
+                                  Flag.fromCode(
+                                    FlagsCode.US,
+                                    height: 20,
+                                    width: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Text('English '),
+                                ],
                               ),
-                              const SizedBox(width: 10),
-                              const Text('English '),
-                            ],
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _language = 'en';
-                            });
-                          },
-                        ),
-                        MenuItemButton(
-                          child: Row(
-                            children: [
-                              Flag.fromCode(
-                                FlagsCode.CN,
-                                height: 20,
-                                width: 20,
+                              onPressed: () {
+                                setState(() {
+                                  _language = 'en';
+                                });
+                              },
+                            ),
+                            MenuItemButton(
+                              child: Row(
+                                children: [
+                                  Flag.fromCode(
+                                    FlagsCode.CN,
+                                    height: 20,
+                                    width: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Text('中文 '),
+                                ],
                               ),
-                              const SizedBox(width: 10),
-                              const Text('中文 '),
-                            ],
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _language = 'zh';
-                            });
-                          },
+                              onPressed: () {
+                                setState(() {
+                                  _language = 'zh';
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                    const SizedBox(
+                      height: 100,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center, // 添加这一行
+                      children: [
+                        Text(AppLocalizations.of(context)!.inputYourAddress,
+                            style: const TextStyle(fontSize: 16)),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: 500,
+                          height: 40,
+                          child: TextField(
+                            // 添加这个输入框
+                            controller: addressController,
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              labelText: AppLocalizations.of(context)!.address,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        Text(AppLocalizations.of(context)!.readRedTextAndRecord,
+                            style: const TextStyle(fontSize: 16)),
+                        const SizedBox(height: 20),
+                        Text(AppLocalizations.of(context)!.redText,
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 24)),
+                      ],
+                    ),
+                    // ),
+                    // ),
+                    const SizedBox(
+                      height: 32,
+                    ),
+                    Recorder(
+                      onStart: () {
+                        setState(() {
+                          showPlayer = false;
+                          showUploadResult = false;
+                        });
+                      },
+                      onReadStream: (data) {},
+                      onStop: (path) {
+                        if (kDebugMode) print('Recorded file path: $path');
+                        if (path == null) {
+                        } else {
+                          // file
+                          audioPath = path;
+                          setState(() {
+                            showPlayer = true;
+                          });
+                        }
+                      },
+                    ),
+                    showPlayer
+                        ? Column(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 25),
+                                child: AudioPlayer(
+                                  source: audioPath!,
+                                  onDelete: () {
+                                    setState(() => showPlayer = false);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final buffer = await getFileData(audioPath!);
+                                  final result = await _uploadAudio(
+                                      addressController.text, buffer);
+                                  setState(() {
+                                    showUploadResult = true;
+                                    _uploadResult = result;
+                                  });
+                                },
+                                child: Text(AppLocalizations.of(context)!
+                                    .identifySound),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Text(_getUploadResultText(context),
+                                  style: TextStyle(
+                                      color: _uploadResult.code == 200
+                                          ? Colors.green
+                                          : Colors.red)),
+                            ],
+                          )
+                        : Container(),
                   ],
                 ),
-                const SizedBox(
-                  height: 100,
-                ),
-                Localizations.override(
-                  context: context,
-                  locale: Locale(_language),
-                  child: Builder(
-                    builder: (context) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center, // 添加这一行
-                        children: [
-                          Text(AppLocalizations.of(context)!.inputYourAddress,
-                              style: const TextStyle(fontSize: 16)),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: 500,
-                            height: 40,
-                            child: TextField(
-                              // 添加这个输入框
-                              controller: addressController,
-                              decoration: InputDecoration(
-                                border: const OutlineInputBorder(),
-                                labelText:
-                                    AppLocalizations.of(context)!.address,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 40),
-                          Text(
-                              AppLocalizations.of(context)!
-                                  .readRedTextAndRecord,
-                              style: const TextStyle(fontSize: 16)),
-                          const SizedBox(height: 20),
-                          Text(AppLocalizations.of(context)!.redText,
-                              style: const TextStyle(
-                                  color: Colors.red, fontSize: 24)),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(
-                  height: 32,
-                ),
-                Recorder(
-                  onStart: () {
-                    setState(() {
-                      showPlayer = false;
-                      showUploadResult = false;
-                    });
-                  },
-                  onReadStream: (data) {},
-                  onStop: (path) {
-                    if (kDebugMode) print('Recorded file path: $path');
-                    if (path == null) {
-                    } else {
-                      // file
-                      audioPath = path;
-                      setState(() {
-                        showPlayer = true;
-                      });
-                    }
-                  },
-                ),
-                showPlayer
-                    ? Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 25),
-                            child: AudioPlayer(
-                              source: audioPath!,
-                              onDelete: () {
-                                setState(() => showPlayer = false);
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: () async {
-                              final buffer = await getFileData(audioPath!);
-                              final result = await _uploadAudio(
-                                  addressController.text, buffer);
-                              setState(() {
-                                showUploadResult = true;
-                                _uploadResult = result;
-                              });
-                            },
-                            child: Text(
-                                AppLocalizations.of(context)!.identifySound),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Text(_getUploadResultText(context),
-                              style: TextStyle(
-                                  color: _uploadResult.code == 200
-                                      ? Colors.green
-                                      : Colors.red)),
-                        ],
-                      )
-                    : Container(),
-              ],
-            ),
-          ),
+              ),
+            );
+          }),
         ),
       ),
     );
