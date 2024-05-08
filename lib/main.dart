@@ -1,12 +1,10 @@
-// import 'dart:ffi';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flag/flag.dart';
+import 'dart:html' as html;
 
 import './audio_player.dart';
 import './audio_recorder.dart';
@@ -15,7 +13,6 @@ import './platform/audio_recorder_platform.dart';
 enum RecorderState { start, continuing, stop }
 
 void main() async {
-  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -62,15 +59,19 @@ class _MyHomeState extends State<MyHome>
   String? audioPath;
   final addressController = TextEditingController();
   UploadResult _uploadResult = UploadResult('', 0);
-  late String? _apiUrl = '';
+  final _apiUrl = 'https://voice.bityuan.com/upload';
+  // final _apiUrl = 'http://localhost:8888/upload';
   String _language = 'en';
+  String? _address;
 
   @override
   void initState() {
     super.initState();
     showPlayer = false;
-    _apiUrl = dotenv.env['API_URL'];
     _language = widget.language;
+    final uri = Uri.parse(html.window.location.href);
+    _address = uri.queryParameters['address'];
+    addressController.text = _address ?? '';
   }
 
   @override
@@ -82,7 +83,7 @@ class _MyHomeState extends State<MyHome>
     debugPrint('上传音频数据, ${data.length}');
     // 创建一个URI，并添加address参数
     final uri =
-        Uri.parse(_apiUrl!).replace(queryParameters: {'address': address});
+        Uri.parse(_apiUrl).replace(queryParameters: {'address': address});
 
     // 创建一个HTTP客户端
     final client = http.Client();
