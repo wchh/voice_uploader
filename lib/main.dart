@@ -39,7 +39,8 @@ class MyApp extends StatelessWidget {
 
 class MyHome extends StatefulWidget {
   final String language;
-  const MyHome({super.key, required this.language});
+  final String? address;
+  const MyHome({super.key, required this.language, this.address});
 
   @override
   State<MyHome> createState() => _MyHomeState();
@@ -62,7 +63,6 @@ class _MyHomeState extends State<MyHome>
   final _apiUrl = 'https://voice.bityuan.com/upload';
   // final _apiUrl = 'http://localhost:8888/upload';
   String _language = 'en';
-  String? _address;
 
   @override
   void initState() {
@@ -70,8 +70,8 @@ class _MyHomeState extends State<MyHome>
     showPlayer = false;
     _language = widget.language;
     final uri = Uri.parse(html.window.location.href);
-    _address = uri.queryParameters['address'];
-    addressController.text = _address ?? '';
+    final address = uri.queryParameters['address'];
+    addressController.text = address ?? '';
   }
 
   @override
