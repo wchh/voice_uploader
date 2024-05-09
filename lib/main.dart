@@ -60,9 +60,10 @@ class _MyHomeState extends State<MyHome>
   String? audioPath;
   final addressController = TextEditingController();
   UploadResult _uploadResult = UploadResult('', 0);
-  final _apiUrl = 'https://voice.bityuan.com/upload';
-  // final _apiUrl = 'http://localhost:8888/upload';
+  // final _apiUrl = 'https://voice.bityuan.com/upload';
+  final _apiUrl = 'http://localhost:8888/upload';
   String _language = 'en';
+  String? _uploadId;
 
   @override
   void initState() {
@@ -71,7 +72,9 @@ class _MyHomeState extends State<MyHome>
     _language = widget.language;
     final uri = Uri.parse(html.window.location.href);
     final address = uri.queryParameters['address'];
+    _uploadId = uri.queryParameters['id'];
     addressController.text = address ?? '';
+    print('address: $address ,id: $_uploadId');
   }
 
   @override
@@ -79,11 +82,16 @@ class _MyHomeState extends State<MyHome>
     super.dispose();
   }
 
-  Future<UploadResult> _uploadAudio(String address, Uint8List data) async {
+  Future<UploadResult> _uploadAudio(
+      String address, Uint8List data, String text) async {
     debugPrint('上传音频数据, ${data.length}');
     // 创建一个URI，并添加address参数
-    final uri =
-        Uri.parse(_apiUrl).replace(queryParameters: {'address': address});
+    var uri = Uri.parse(_apiUrl).replace(queryParameters: {
+      'address': address,
+      'id': _uploadId,
+      'language': _language,
+      'text': text
+    });
 
     // 创建一个HTTP客户端
     final client = http.Client();
@@ -275,7 +283,8 @@ class _MyHomeState extends State<MyHome>
                                 onPressed: () async {
                                   final buffer = await getFileData(audioPath!);
                                   final result = await _uploadAudio(
-                                      addressController.text, buffer);
+                                      // ignore: use_build_context_synchronously
+                                      addressController.text, buffer, AppLocalizations.of(context)!.redText);
                                   setState(() {
                                     showUploadResult = true;
                                     _uploadResult = result;
