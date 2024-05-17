@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flag/flag.dart';
+import 'dart:async';
+import 'dart:math';
 import 'dart:html' as html;
 
 import './audio_player.dart';
@@ -64,6 +65,7 @@ class _MyHomeState extends State<MyHome>
   // final _apiUrl = 'http://localhost:8888/upload';
   String _language = 'en';
   String? _uploadId;
+  String _redText = '';
 
   @override
   void initState() {
@@ -74,7 +76,16 @@ class _MyHomeState extends State<MyHome>
     final address = uri.queryParameters['address'];
     _uploadId = uri.queryParameters['id'];
     addressController.text = address ?? '';
+    // addressController.overflow = TextOverflow.ellipsis;
+    _redText = _generateRedText();
     print('address: $address ,id: $_uploadId');
+  }
+
+  String _generateRedText() {
+    var rng = Random();
+    var numbers = List<int>.generate(10, (i) => i); // 生成0-9的数字列表
+    numbers.shuffle(rng); // 随机打乱列表
+    return numbers.sublist(0, 7).join(); // 取前7个数字并转为字符串
   }
 
   @override
@@ -130,11 +141,19 @@ class _MyHomeState extends State<MyHome>
     if (!showUploadResult) {
       return '';
     }
-    String result = AppLocalizations.of(context)!.uploadResultOk;
+    String result;
     if (_uploadResult.code != 200) {
-      result = AppLocalizations.of(context)!.uploadResultErr;
+      if (_uploadResult.result.contains('iat')) {
+        result = AppLocalizations.of(context)!.iatResultErr;
+      } else {
+        result = AppLocalizations.of(context)!.uploadResultErr;
+      }
+      return result;
+    } else {
+      result = AppLocalizations.of(context)!.uploadResultOk;
     }
-    return "$result: ${_uploadResult.result}";
+    print("$result: ${_uploadResult.result}");
+    return result;
   }
 
   @override
@@ -225,19 +244,19 @@ class _MyHomeState extends State<MyHome>
                           width: 500,
                           height: 40,
                           child: TextField(
-                            // 添加这个输入框
                             controller: addressController,
                             decoration: InputDecoration(
-                              border: const OutlineInputBorder(),
-                              labelText: AppLocalizations.of(context)!.address,
-                            ),
+                                border: const OutlineInputBorder(),
+                                labelText:
+                                    AppLocalizations.of(context)!.address),
                           ),
                         ),
                         const SizedBox(height: 40),
                         Text(AppLocalizations.of(context)!.readRedTextAndRecord,
                             style: const TextStyle(fontSize: 16)),
                         const SizedBox(height: 20),
-                        Text(AppLocalizations.of(context)!.redText,
+                        // Text(AppLocalizations.of(context)!.redText,
+                        Text(_redText,
                             style: const TextStyle(
                                 color: Colors.red, fontSize: 24)),
                       ],
@@ -286,7 +305,9 @@ class _MyHomeState extends State<MyHome>
                                       // ignore: use_build_context_synchronously
                                       addressController.text,
                                       buffer,
-                                      AppLocalizations.of(context)!.redText);
+                                      _redText);
+                                  // ignore: use_build_context_synchronously
+                                  // AppLocalizations.of(context)!.redText);
                                   setState(() {
                                     showUploadResult = true;
                                     _uploadResult = result;

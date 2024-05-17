@@ -6,5 +6,6 @@
   "selectLanguage": "选择语言",
   "redText": "0 1 2 3 4 5 6 7 8 9",
   "uploadResultOk": "声纹认证成功",
-  "uploadResultErr": "声纹认证失败"
+  "iatResultErr": "声音内容识别失败, 请朗读文本内容重新录制声音",
+  "uploadResultErr": "声纹认证失败, 请确保地址和声音一致"
 }
